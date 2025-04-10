@@ -1,5 +1,9 @@
+from pathlib import Path
+
 from modelbase.ode import Model
 from modelbase.ode.utils import ratefunctions as rf
+
+from modelbase_migrate import migrate
 
 
 def example1() -> Model:
@@ -79,3 +83,27 @@ def upper_glycolysis() -> Model:
     )
 
     return m
+
+
+def test_migrate() -> None:
+    (out := Path(__file__).parent / "tmp").mkdir(exist_ok=True)
+
+    migrate(
+        example1(),
+        initial_conditions={"x1": 1.0},
+        out_file=out / "example1.py",
+    )
+
+    migrate(
+        upper_glycolysis(),
+        initial_conditions={
+            "GLC": 0,
+            "G6P": 0,
+            "F6P": 0,
+            "FBP": 0,
+            "ATP": 0.5,
+            "ADP": 0.5,
+        },
+        out_file=out / "upper_glycolysis.py",
+    )
+    assert True
